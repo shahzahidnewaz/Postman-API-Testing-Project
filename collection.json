@@ -1,0 +1,319 @@
+{
+  "info": {
+    "_postman_id": "b47aa580-d947-48a3-ae2a-4a8d79432dd9",
+    "name": "E-Commerce API Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54544099",
+    "_collection_link": "https://go.postman.co/collection/54544099-b47aa580-d947-48a3-ae2a-4a8d79432dd9?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Log In",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login Successful\", () => {\r",
+              "pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Success response\", () => { \r",
+              "pm.expect(pm.response.code) .to.be.oneOf([200,201,204]);\r",
+              "});\r",
+              "\r",
+              "let jsonData=pm.response.json();\r",
+              "pm.environment.set(\"accessToken\",jsonData.accessToken);\r",
+              "\r",
+              "console.log(pm.environment.get(\"accessToken\")); "
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"emilys\",\r\n    \"password\": \"emilyspass\"\r\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Auth User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Body matches string\", function () {\r",
+              "    pm.expect(pm.response.text()).to.include(\"Emily\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Security header present\", () => {\r",
+              "    pm.expect( pm.response.headers.has( \"X-Content-Type-Options\")) .to.be.true;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Products",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Data has items\", () => {",
+              "    pm.expect(jsonData.products).to.be.an(\"array\").and.not.be.empty;",
+              "});",
+              "",
+              "pm.environment.set(\"product_id\", jsonData.products[0].id)",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Single Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", () => {\r",
+              "pm.expect(pm.response.code) .to.equal(200);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{product_id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add to Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "let jsonData = pm.response.json();\r",
+              "pm.test(\"Cart has products\", function() {\r",
+              "    pm.expect(jsonData.products.length).to.be.above(0);\r",
+              "});\r",
+              "pm.environment.set(\"cart_id\", jsonData.id);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"userId\":1,\r\n    \"products\": [\r\n        {\r\n            \"id\": {{product_id}},\r\n            \"quantity\":5\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/carts/add",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "add"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Cart Details",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const j = pm.response.json();\r",
+              "pm.test(\"Has id field\", () => {\r",
+              "pm.expect(j) .to.have.property(\"id\");\r",
+              "});\r",
+              "\r",
+              "let jsonData = pm.response.json();\r",
+              "pm.test(\"Cart total is valid\", function() {\r",
+              "    pm.expect(jsonData.total).to.above(180.44);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/carts/32",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "32"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    }
+  ]
+}
